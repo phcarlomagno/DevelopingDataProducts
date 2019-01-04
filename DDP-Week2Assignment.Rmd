@@ -1,0 +1,102 @@
+---
+title: "Developing Data Products Week#2 - RMD + Leaflet"
+author: "Carlomagno Anastacio"
+date: "January 4, 2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### Introduction
+This is an exercise to demonstrate what was learned on R Markdown and Leaflet.
+
+### Instructions  
+Create a web page using R Markdown that features a map created with Leaflet.  
+Host your webpage on either GitHub Pages, RPubs, or NeoCities.  
+Your webpage must contain the date that you created the document, and it must contain a map created with Leaflet. We would love to see you show off your creativity!
+
+### Leaflet Experiment  
+For this exercise, we get the locations of the top 10 tourist locations in Japan as indicated in [Touropia](https://www.touropia.com/tourist-attractions-in-tokyo/).  
+
+**Objective:** We will try to see if these tourist spots also attract food establishments or lodging. The data coordinates were extracted from [Wikimapia](http://wikimapia.org/).
+
+
+***
+
+#### Establishments around Top 10 Tokyo Tourist Spots 
+```{r, echo=FALSE,warning=FALSE,message=FALSE}
+library(leaflet)
+
+#create a data frame for the place of interest
+dataPOI <- data.frame("POI"=c("Tokyo Metropolitan Government Building","Akihabara","Tokyo Imperial Palace","Tokyo Tower","Shibuya Pedestrian Crossing","Shinjuku Gyoen National Garden","Meiji Shrine","Ueno Park","Tsukiji Market","Sensoji Temple"), "Lat"=c(35.689678,35.702155,35.685219,35.658607,35.659518,35.68522,35.67645,35.715526,35.665547,35.714809),"Lon"=c(139.69209,139.77433,139.75281,139.745433,139.700472,139.710052,139.699326,139.773834,139.770656,139.796677))
+dataPOI["color"]='red'
+dataPOI["Type"]='Place of Interest'
+
+#create a data frame for lodging places
+dataLodging <- data.frame("Name"=c("Sakura Hostel Asakusa","Youth Hostel","Miyabi Hostel Cheap and comfortable hotel for traveler","Toukaisou Ryokan","Backpacker`s Hostel","Casa Komone Guest house at Kotake-Mukaihara","Tokyo Girl Hostel","bAKpAK Tokyo Hostel a.k.a Guess T House","Share Style Ueno-Nishi","Malaysian Student Association Japan Guest House","Asakusa Smile","Khaosan Tokyo Ninja Hostel","Mickey House Gaigen House Hostel","Sakura Hostel Asakusa","Iwasaki Campus"),
+                   "Lat"=c(35.715833,35.6775,35.662778,35.713056,35.737778,35.7475,35.688333,35.654444,35.713889,35.612778,35.705278,35.695556,35.770278,35.715833,35.678889),
+                   "Lon"=c(139.794722,139.694444,139.694722,139.790556,139.707222,139.676111,139.6625,139.735,139.766667,139.6975,139.800556,139.783611,139.680556,139.794722,139.591944))
+dataLodging["color"]='blue'
+dataLodging["Type"]='Lodging'
+
+
+#create a data frame for food locations
+dataFood <- data.frame("Name"=c("McDonalds Shinsen Station","Toei Shibuya Plaza","Mos Burger","Mos Burger","McDonalds fast food eatery","Shibuya Toei Plaza","McDonalds Akasaka Ekimae","Ikebukuro Hotel Theatre / Theatre Dia","Freshness Burger Shop in front of Sengoku-Station","Matsuya","First Kitchen Shinjuku-Minamiguchi","McDonalds Shinjuku-Nishiguchi","Kiraku","Yokohama Ramen Musashi-ya Ayase","Ramen Restaurant","Ramen","Tokyo-Tonkotsu-Ramen Bankara Kashiwa-Toyoshiki","Ivan Ramen","Japan Ramen ICHIOKUMEN","Yoshinoya","Yoshinoya Shinjuku Higashiguchi Yasukuni-dori","Pub Carol","Pub Eren","Night Pub","Hub Pub","Capsule Land Shibuya","Watamin-chi Kikukawa-ekimae","Quienquiera Cocktail Bar  Dining","Bond Bar","Ds Diner","Hub Akihabara"),
+                   "Lat"=c(35.656944,35.656944,35.691667,35.690556,35.661944,35.659722,35.671944,35.73,35.726944,35.710278,35.688611,35.689167,35.658889,35.776389,35.693611,35.703611,35.860833,35.671667,35.624167,35.685,35.693333,35.694167,35.694167,35.693056,35.662222,35.657222,35.688056,35.644722,35.650556,35.711944,35.7),
+                   "Lon"=c(139.693611,139.693611,139.674167,139.669167,139.733889,139.701944,139.736111,139.715556,139.745278,139.797222,139.698611,139.698056,139.696667,139.829722,139.674167,139.626111,139.946667,139.607778,139.71,139.783611,139.700833,139.813056,139.8125,139.806944,139.733889,139.696111,139.806667,139.723056,139.721944,139.793889,139.773889))
+dataFood["color"]='green'
+dataFood["Type"]='Food'
+
+
+#Create the map object to be displayed
+map <- leaflet(dataPOI,width="100%") %>% addTiles() %>% 
+  
+  addCircleMarkers(data=dataPOI, 
+                   color = dataPOI$color,
+                   popup = dataPOI$POI, 
+                   group="Places of Interest") %>%
+  
+  addCircleMarkers(data=dataLodging, 
+                   color = dataLodging$color,
+                   popup = dataLodging$Name, 
+                   group="Lodging") %>%
+  
+  addCircleMarkers(data=dataFood, 
+                   color = dataFood$color,
+                   popup = dataFood$Name, 
+                   group="Food") %>%
+  
+  addLegend(labels = c("Places of Interest","Lodging","Food"), 
+            colors = c("red", "blue", "green")) %>%
+  
+  addLayersControl(overlayGroups=c("Places of Interest","Lodging","Food"),
+                   options = layersControlOptions(collapsed = FALSE))
+
+#display the created map
+map
+```
+
+### Visualization Components
+1. **Map Tile**  
+The Open Street Map that serves as the base layer of the visualization.
+
+2. **Location Markers**  
+These are the plotted coordinates of the locations we would like to check out.  The popup is enabled to let the viewer know its name.  A circle marker is used to allow color separation for easy identification of the location type.
+
+3. **Layer Control**  
+By separating the markers by type into different layers, we allow the viewer freedom to control which locations will be displayed.
+
+4. **Legend**
+This is added to add clarity to the viewer in knowing which circles are of what type.
+
+
+### Analysis
+For this data set, tourist spots seems to have food and lodging establishments to be close to it.  Though some places like the Imperial Palace and Tsukiji Market have no establishments closed to it possibly due to security or logistics reasons.
+
+What was noticed from the visualization, however,  is that food and lodging establishments are within close proximity of each other, even if there are no tourist spots around.
+
+
+***
+End of Exercise
